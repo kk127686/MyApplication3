@@ -1,0 +1,86 @@
+package com.juxiang.myapplication.wiget;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Toast;
+
+public class CustomView extends View {
+
+    private float startX;//圆点坐标X
+    private float startY;//圆点坐标Y
+    private int mHeight;//屏幕高度
+    private int mWidth;//屏幕宽度
+    private float Radius=50;//圆点半径
+    private Paint paint1;//圆点画笔1
+    private Paint paint2;//圆点画笔2
+    private Paint paint3;//背景画笔
+    private boolean onBall;//点击是否在球上
+    private OnPosition onPosition;//方向回调
+    public CustomView(Context context) {
+        super(context);
+    }
+
+    public CustomView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public CustomView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public CustomView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+       mHeight=this.getHeight();
+       mWidth=this.getWidth();
+       startX=mWidth/8;
+       startY=mHeight/2;
+       paint1=new Paint();
+       paint1.setColor(Color.BLUE);
+       paint1.setDither(true);
+       paint2=new Paint();
+       paint2.setColor(Color.RED);
+       paint2.setStrokeWidth(5);
+       paint3=new Paint();
+       paint3.setColor(Color.GREEN);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        canvas.drawLine(mWidth/8,100,mWidth/6,mHeight-100,paint2);
+        canvas.drawCircle(mWidth/8,mHeight/2,70,paint3);
+        canvas.drawCircle(startX,startY,Radius,paint1);
+
+
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+            switch (event.getAction()){
+                case MotionEvent.ACTION_MOVE:
+                    if(onBall){
+                        Log.e("正在移动",event.getX()+" "+event.getY());
+                        startX=mWidth/6;
+                        startY=(int)event.getY();
+                        if(startY<=100){
+                            startY=100+Radius;
+                        }else if(startY>mHeight){
+                            startY=mHeight-(100+Radius);
+                        }
+                        this.postInvalidate();
+                        if(startY<mHeight/2){
+                            onPosition.onUp(startX,startY);
+                        }else{
+                            onPosition.onDown(startX,startY);
+              
